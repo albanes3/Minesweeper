@@ -3,10 +3,11 @@ import java.awt.*;
 import javax.swing.JFrame;
 
 public class Game extends Canvas implements Runnable{
-	public static int width = 500;
+	public static int width = 200;
 	public static int height = width;
 	public static Dimension size = new Dimension(width,height);
 	private Image image;
+	public static Level level;
 	
 	public static boolean running = false;
 
@@ -16,7 +17,7 @@ public class Game extends Canvas implements Runnable{
 	
 	public void start(){
 		running = true;
-		
+		level = new Level();
 		Thread thread = new Thread(this);
 		thread.start();
 	}
@@ -45,8 +46,8 @@ public class Game extends Canvas implements Runnable{
 	
 	public void render(){
 		Graphics g = image.getGraphics();
-		
-		g.drawRect(0, 0, 30, 40);
+		level.render(g);
+		g.drawRect(0, 0, 200, 200);
 		
 		g = getGraphics();
 		g.drawImage(image, 0, 0, width, height, 0, 0, width, height, null);
