@@ -3,19 +3,24 @@ import java.awt.*;
 import javax.swing.JFrame;
 
 public class Game extends Canvas implements Runnable{
-	public static int width = 200;
-	public static int height = width;
+	public static int width = 210;
+	public static int height = width+20;
 	public static Dimension size = new Dimension(width,height);
 	private Image image;
 	public static Level level;
 	
+	public static Point point = new Point(0,0);
+	public static  boolean mouseLeft = false;
+	
 	public static boolean running = false;
 
 	public Game(){
-		
+		addMouseListener(new ClickListener());
+		addMouseMotionListener(new ClickListener());
 	}
 	
 	public void start(){
+		new Tile();
 		running = true;
 		level = new Level();
 		Thread thread = new Thread(this);
@@ -40,8 +45,10 @@ public class Game extends Canvas implements Runnable{
 		game.start();
 	}
 	
+	
+	
 	public void update(){
-		
+		level.update();
 	}
 	
 	public void render(){

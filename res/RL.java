@@ -9,3 +9,4 @@ public class RL {
 			return Toolkit.getDefaultToolkit().getImage(loader.getClass().getResource(filename));
 	}
 }
+//resource loader for images
