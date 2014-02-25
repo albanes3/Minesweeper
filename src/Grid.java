@@ -4,33 +4,45 @@ import java.awt.Graphics;
 public class Grid extends Rectangle{
 	private static final long serialVersionUID = 1L;
 	public int[] id = {-1, -1};
-	private Tile[][] board = new Tile[10][10];
+	private Tile[][] board = new Tile[10][10]; //stores all tiles on the board
+	private Tile[] mines = new Tile[10]; //stores placed mines for easy reveal after game over
 	
 	//initialize the grid to contain all blank tiles on the board, then populate them with mines and ranks
-	public init(int board_width, int board_height, int num_mines){
+	public init(){
 		//create grid of blank tiles
-		for(int i = 0; i < board_height; i++){
-			for(int j = 0; j < board_width; j++){
+		for(int i = 0; i < 10; i++){
+			for(int j = 0; j < 10; j++){ //i is y coordinate, j is x
 				board[i][j] = new Tile(); //create a tile object for this location on the board
+				board[i][j].setLoc(j, i); //tell the tile where it is on the board
 			}
 		}
 		
-		//populate tiles with mines (and simultaneously increment ranks for surrounding tiles)
-		for(int i = 0; i < num_mines; i++){
-			int x = (Math.random() * board_width) - 1;
-			int y = (Math.random() * board_height) - 1;
+		//populate tiles with mines (and increment ranks for surrounding tiles)
+		for(int i = 0; i < 10; i++){
+			int x = Math.random() * 9; //generates integer between 0 and 9
+			int y = Math.random() * 9; //generates integer between 0 and 9
 			
 			if(!board[y][x].isMine()){ //check that the tile is not already a mine
 				board[y][x].setMine(); //place a mine on the tile
-				for(int i = -1; i <= 1; i++){
+				mines[i] = board[y][x]; //add tile to local database of mines
+				for(int i = -1; i <= 1; i++){ //increment surrounding tiles' rank
 					for(int j = -1; j<=1; j++){
-						board[y+j][x+i].rankUp(); //increase rank by one (ignores tiles that have mines)
+						//increase rank by one (ignores tiles that have mines, and tiles that don't exist)
+						if(y+j >=0 && x+i >=0 && y+j < 10 && x+i <=10)
+							board[y+j][x+i].rankUp();
 					}
 				}
 			}
 			else{
 				i--; //Don't place a mine (on top of a mine) and repeat this step
 			}
+		}
+	}
+	
+	//reveal all mines when the game has ended
+	public void explode(){
+		for(int i = 0; i < 10; i++){
+			mines[i].reveal();
 		}
 	}
 	
