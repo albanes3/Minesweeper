@@ -23,7 +23,7 @@ public class Tile {
 	
 	//Increase the tile's rank when a mine is placed
 	public void rankUp(){
-		if(!mine == 1){
+		if(!mine){
 			rank++;
 		}
 	}
@@ -35,9 +35,24 @@ public class Tile {
 	
 	//reveal the tile
 	public void reveal(){
+		if(status != 0) return; //disable reveal on click if marked or ? (or already revealed)
 		status = 3; //set revealed status
 		if(rank == 0){ //if 0 tile, reveal surrounding tiles
 			//TODO: get surrounding tiles from grid and call this method on them
 		}
+	}
+	
+	public void setMine(){ //sets tile as mine
+		mine = 1;
+		rank = 0;
+	}
+	
+	public boolean isMine(){ //returns whether tile is mine or not
+		return mine;
+	}
+	
+	public toggle(){ //changes the state of the tile between unmarked, marked, and ?
+		if(state == 2) state = 0;
+		else state++;
 	}
 }
