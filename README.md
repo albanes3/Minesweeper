@@ -2,6 +2,8 @@ Minesweeper
 ===========
 Grid, Tile, RL, and Level classes added
 
+Sample program exectution: http://youtu.be/RkuhX5Z6eRo
+
 TODO:
 - implement grid lines DONE
 - read input for left DONE
