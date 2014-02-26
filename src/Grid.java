@@ -4,47 +4,9 @@ import java.awt.Graphics;
 public class Grid extends Rectangle{
 	private static final long serialVersionUID = 1L;
 	public int[] id = {-1, -1};
-	private Tile[][] board = new Tile[10][10]; //stores all tiles on the board
-	private Tile[] mines = new Tile[10]; //stores placed mines for easy reveal after game over
-	
-	//initialize the grid to contain all blank tiles on the board, then populate them with mines and ranks
-	public init(){
-		//create grid of blank tiles
-		for(int i = 0; i < 10; i++){
-			for(int j = 0; j < 10; j++){ //i is y coordinate, j is x
-				board[i][j] = new Tile(); //create a tile object for this location on the board
-				board[i][j].setLoc(j, i); //tell the tile where it is on the board
-			}
-		}
-		
-		//populate tiles with mines (and increment ranks for surrounding tiles)
-		for(int i = 0; i < 10; i++){
-			int x = Math.random() * 9; //generates integer between 0 and 9
-			int y = Math.random() * 9; //generates integer between 0 and 9
-			
-			if(!board[y][x].isMine()){ //check that the tile is not already a mine
-				board[y][x].setMine(); //place a mine on the tile
-				mines[i] = board[y][x]; //add tile to local database of mines
-				for(int i = -1; i <= 1; i++){ //increment surrounding tiles' rank
-					for(int j = -1; j<=1; j++){
-						//increase rank by one (ignores tiles that have mines, and tiles that don't exist)
-						if(y+j >=0 && x+i >=0 && y+j < 10 && x+i <=10)
-							board[y+j][x+i].rankUp();
-					}
-				}
-			}
-			else{
-				i--; //Don't place a mine (on top of a mine) and repeat this step
-			}
-		}
-	}
-	
-	//reveal all mines when the game has ended
-	public void explode(){
-		for(int i = 0; i < 10; i++){
-			mines[i].reveal();
-		}
-	}
+	public int rank = 0;
+	public boolean isBomb=false;
+	private static int status = 0; //represents visual state to user - blank (0), marked (1), ? (2), or revealed (3)
 	
 	public Grid(Rectangle size, int[] id){
 		setBounds(size);
@@ -53,5 +15,46 @@ public class Grid extends Rectangle{
 	
 	public void render(Graphics g){
 		g.drawImage(Tile.image, x, y, x+width, y+height, id[0]*Tile.size,id[1]*Tile.size, (id[0]+1)*(Tile.size), (id[1]+1)*(Tile.size),null);
+	}
+	
+	public void toggle(){ //changes the state of the tile between unmarked, marked, and ?
+		if(status == 2){
+			this.id=Tile.blank;
+			status = 0;
+			return;
+		}
+		else if(status == 1)
+			this.id=Tile.qmark;
+		else 
+			this.id=Tile.flag;
+		status++;
+		//TODO:
+		//	right click does not initiate this method correctly; check click() method inside of Level class
+}
+	
+	public int[] revealTile(){//sets the image of the tile based on rank and the isBomb boolean
+		if(this.isBomb)//checks for isBomb boolean
+			return Tile.bomb;
+		if(this.rank==1)
+			return Tile.one;
+		if(this.rank==2)
+			return Tile.two;
+		if(this.rank==3)
+			return Tile.three;
+		if(this.rank==4)
+			return Tile.four;
+		if(this.rank==5)
+			this.id=Tile.five;
+		if(this.rank==6)
+			return Tile.six;
+		if(this.rank==7)
+			return Tile.seven;
+		if(this.rank==8)
+			return Tile.eight;
+		return Tile.zero;
+		//TODO:
+			//change the code so it directly edits the Grid object (i.e. this.id=Tile.bomb); I had issues getting this to work; 
+				// - this will also require changes to the click() method in the Level class
+			//instead return a boolean based on whether it should check for tiles with no adjacent bombs
 	}
 }
