@@ -83,14 +83,11 @@ public class Game extends Canvas implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		revealBombs();
+
 		saveHighScore();
 		startNewGame();
 	}
 
-	private void revealBombs() {//reveals list of bombs at the end based on Level.bombs[][]
-
-	}
 
 	public void saveHighScore(){//if high score, stick in an array to be displayed by the menu
 

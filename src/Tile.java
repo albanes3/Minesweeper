@@ -14,10 +14,10 @@ public class Tile {
 	public static int[] eight = {3,2};
 	public static int[] qmark = {4,0};
 	public static int[] bomb = {2,0};
-	
+
 	public static int size = 20; // pixel width/height for each tile
 	public static Image image; // source image for all tiles
-	
+
 	public Tile(){
 		image = RL.getImage("tile2.jpg");
 	}
