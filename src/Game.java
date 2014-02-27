@@ -1,6 +1,6 @@
 import java.awt.*;
-
-import javax.swing.JFrame;
+import java.awt.event.*;
+import javax.swing.*;
 
 public class Game extends Canvas implements Runnable{
 	private static final long serialVersionUID = 1L;
@@ -42,8 +42,36 @@ public class Game extends Canvas implements Runnable{
 	public static void main(String args[]){
 		Game game = new Game();
 		JFrame j = new JFrame();
+		
+		JMenuBar menuBar = new JMenuBar(); //create the panel for the menu
+		JMenu gameMenu = new JMenu("Game"), helpMenu = new JMenu("Help"); //create the two menus
+		
+		//create menu items for both menus
+		JMenuItem resetMenuButton = new JMenuItem("Reset", KeyEvent.VK_R), 
+				topTenButton = new JMenuItem("Top Ten", KeyEvent.VK_T),
+				exitButton = new JMenuItem("eXit", KeyEvent.VK_X),
+				helpButton = new JMenuItem("Help", KeyEvent.VK_H),
+				aboutButton = new JMenuItem("About", KeyEvent.VK_A);
+		
+		//Details for "Game" menu
+		gameMenu.setMnemonic(KeyEvent.VK_G);
+		gameMenu.add(resetMenuButton);
+		gameMenu.add(topTenButton);
+		gameMenu.add(exitButton);
+		  
+		
+		//Details for "Help" menu
+		helpMenu.setMnemonic(KeyEvent.VK_H);
+		helpMenu.add(helpButton);
+		helpMenu.add(aboutButton);
+		
+		//add menus to menu bar
+		menuBar.add(gameMenu);
+		menuBar.add(helpMenu);
+		
 
 		j.setVisible(true);
+		j.setJMenuBar(menuBar);
 		j.add(game);
 		j.setPreferredSize(size);
 		j.pack();
