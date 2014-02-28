@@ -1,6 +1,7 @@
-import java.awt.Rectangle;
-import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -8,17 +9,19 @@ import javax.swing.JOptionPane;
 
 public class Level {
 
-	public static String filename = "scores.txt";
 	static int range = 100;
-	//public int numRevealed=0;
 	public static int W = 10, H=10;
+	public static String topScores;
+	static String[] names = new String[10];
+	static long[] scores = new long[10];
 	static int[][] bombs = new int[10][2]; //an array holding the coordinates of each bomb
 	private static boolean[][] visited = new boolean[10][10];
 	//^used for clearAdjTiles() and for permitting against right clicks after a tile has been revealed
 	public static Grid[][] grid = new Grid[W][H];
-	//private static Grid[] mines = new Grid[10];
+	public static int gameCounter;
 
 	public Level(){	
+		topScores = new String("           --Top Scores--\n\n");
 		generateGrid();//initialize all tiles to be blank
 		for(int i=0;i<10;i++)
 			for(int j=0; j<2; j++)
@@ -26,8 +29,10 @@ public class Level {
 		for(int i=0;i<10;i++)
 			for(int j=0; j<10; j++)
 				visited[i][j]=false;//initialize array to avoid NullPointerException
+		gameCounter=10;
 		setBombs();//generate 10 coordinates which have isBomb=true
 		setRanks();//after generating our 10 bombs, increment tiles adjacent to each bomb
+		readScores();
 	}
 
 	public static boolean MouseLeft(){
@@ -130,18 +135,18 @@ public class Level {
 				if(MouseLeft()){//left click
 					if((grid[x][y].id==Tile.blank || grid[x][y].id==Tile.qmark) && !visited[x][y]){//if the tile has not already been revealed
 						if(grid[x][y].contains(new Point(Game.point.x,Game.point.y))){//checks whether or not the mouse click is contained inside the rectangle
+							if(Game.gameStart==0)
+								Game.gameStart++;
 							visited[x][y]=true;
 							if(grid[x][y].revealTile()){//if the tile is rank zero, reveal adjacent tiles
 								clearAdjTiles(x,y);
 							}
-
-							System.out.println("numRevealed: " + Grid.numRevealed);
 							if(Grid.numRevealed==90){
 								Game.gamewon=true;
 							}
 							else if(grid[x][y].id==Tile.bomb){//if a bomb is encountered, reveal all bombs and stop running the game
 								Game.hitBomb=true;
-								
+
 							}
 						}
 
@@ -157,19 +162,104 @@ public class Level {
 			grid[bombs[i][0]][bombs[i][1]].revealTile();
 		}
 	}
-	
+
 	public static void endGame(boolean win){
 		ClickListener.useMouse=false;
+		Game.running=false;
 		Grid.numRevealed = 0;
 		if(win){
-			saveHighScore();
+			saveHighScores();
+			readScores();
 		}
-		else
-			JOptionPane.showMessageDialog(null, "You Lose!\n Click 'Reset' to try again.\n ");
+		else{
+			JOptionPane.showMessageDialog(null,"                You Lose!\n    Click 'Reset' to try again.\n\n");
+		}
 	}
-	
-	public static void saveHighScore(){
-		String name = JOptionPane.showInputDialog ( "You win! Enter your name:\n" ); 
+
+
+	public static void readScores(){
+		topScores = new String("           --Top Scores--\n\n");
+		for(int i = 0; i < 10; i++){
+			scores[i] = 0;
+			names[i] = null;
+		}
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(Game.file));
+			String currentline = br.readLine();
+			int i = 0;
+			while(i<10 && currentline != null){
+				names[i] = currentline;
+				currentline = br.readLine();
+				if(currentline ==null) 
+					break; 
+				scores[i] = Integer.parseInt(currentline);
+				topScores += "" + (int)(i+1) + ".    " + names[i] + ": " + ((float)(scores[i]))/10 + "\n";
+				i++;
+				currentline = br.readLine();
+			}
+			br.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public static void saveHighScores(){
+
+		try{
+			Game.file.delete();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+
+		try{
+			if (!Game.file.exists()) {
+				Game.file.createNewFile();
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+
+		long winnerTime = (Game.stopTime-Game.startTime)/100;
+		String name = JOptionPane.showInputDialog ( "You win! Enter your name:\n" );
+		int i;
+		for(i=0; i<10; i++){
+			if(names[i] == null) break;
+			if(winnerTime<=scores[i]){
+				break;
+			}
+		}
+		if(i<10)
+			insertScore(winnerTime,name,i);
+		try{
+			if (Game.file.exists()) {
+				Game.file.delete();
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		try{
+			if (!Game.file.exists()) {
+				Game.file.createNewFile();
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		for(i=0;i<10;i++){
+			if(names[i] == null) break;
+			Game.writeScore(names[i], scores[i]);
+		}
+	}
+
+	private static void insertScore(long winnerTime, String name, int index){
+		int lastIndex = 0;
+		while(lastIndex<9 && names[lastIndex]!=null)
+			lastIndex++;
+		for(int i = lastIndex; i>index && i>0; i--){
+			scores[i] = scores[i-1];
+			names[i] = names[i-1];
+		}
+		scores[index] = winnerTime;
+		names[index] = name;
 	}
 
 	private void clearAdjTiles(int x, int y) {//recursively clears tiles around those of rank zero
