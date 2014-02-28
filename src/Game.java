@@ -1,24 +1,70 @@
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javax.swing.*;
 
 public class Game extends Canvas implements Runnable{
+	public static boolean gtfo=false;
+	public static boolean hitBomb=false;
 	private static final long serialVersionUID = 1L;
 	public static int width = 210;
-	public static int height = width+20;
+	public static int height = width+80;
 	public static Dimension size = new Dimension(width,height);
 	private Image image;
+	public static boolean gamewon=false;
+	private File file = new File("topten.txt");
 	public static Level level;
+	public static JFrame j;
 
 	public static Point point = new Point(0,0);
+	private static BufferedWriter bw;
+	public static String[] toptens = new String[10];
 
 	public static boolean running = false;
+	public static boolean windowrunning = false;
 
 	public Game(){
+		String content = "This is the other content to write into file";
+
+		//create file if it doesn't exist
+		try{
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		for(int i=0; i<toptens.length;i++)
+			toptens[i]="content";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String currentline = br.readLine();
+			int i = 0;
+			while(currentline != null){
+				toptens[i] = currentline; 
+				System.out.println(toptens[i]);
+				System.out.println(currentline + "hi");
+				i++;
+				currentline = br.readLine();
+			}
+			br.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		try{
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			bw = new BufferedWriter(fw);
+			bw.write(content);
+			bw.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 		addMouseListener(new ClickListener());
 		addMouseMotionListener(new ClickListener());
 	}
-
 	public static boolean MouseLeft(){//checks for left click
 		return ClickListener.MouseLeft();
 	}
@@ -28,9 +74,10 @@ public class Game extends Canvas implements Runnable{
 	}
 
 	public void start(){
-		new Tile();
+		/*new Tile();
+		windowrunning=true;
 		running = true;
-		level = new Level();
+		level = new Level();*/
 		Thread thread = new Thread(this);
 		thread.start();//jump to run() below
 	}
@@ -41,37 +88,11 @@ public class Game extends Canvas implements Runnable{
 
 	public static void main(String args[]){
 		Game game = new Game();
-		JFrame j = new JFrame();
-		
-		JMenuBar menuBar = new JMenuBar(); //create the panel for the menu
-		JMenu gameMenu = new JMenu("Game"), helpMenu = new JMenu("Help"); //create the two menus
-		
-		//create menu items for both menus
-		JMenuItem resetMenuButton = new JMenuItem("Reset", KeyEvent.VK_R), 
-				topTenButton = new JMenuItem("Top Ten", KeyEvent.VK_T),
-				exitButton = new JMenuItem("eXit", KeyEvent.VK_X),
-				helpButton = new JMenuItem("Help", KeyEvent.VK_H),
-				aboutButton = new JMenuItem("About", KeyEvent.VK_A);
-		
-		//Details for "Game" menu
-		gameMenu.setMnemonic(KeyEvent.VK_G);
-		gameMenu.add(resetMenuButton);
-		gameMenu.add(topTenButton);
-		gameMenu.add(exitButton);
-		  
-		
-		//Details for "Help" menu
-		helpMenu.setMnemonic(KeyEvent.VK_H);
-		helpMenu.add(helpButton);
-		helpMenu.add(aboutButton);
-		
-		//add menus to menu bar
-		menuBar.add(gameMenu);
-		menuBar.add(helpMenu);
-		
+		j = new JFrame();
+		GameMenu gm = new GameMenu();
 
 		j.setVisible(true);
-		j.setJMenuBar(menuBar);
+		j.setJMenuBar(gm);
 		j.add(game);
 		j.setPreferredSize(size);
 		j.pack();
@@ -99,30 +120,62 @@ public class Game extends Canvas implements Runnable{
 
 
 	public void run(){//when thread.start() is called, it automatically jumps to this function
+		new Tile();
+		windowrunning=true;
+		running = true;
+		level = new Level();
 		image = createVolatileImage(width,height);
 
-		while(running){
+		while(windowrunning){
 			update();//go to update()
 			render();//renders the grid after checking conditions and changing tile images
+			if(hitBomb){
+				Level.revealBombs(Level.grid);
+				update();
+				render();
+				Level.endGame(false);
+				hitBomb=false;
+			}
+			if(gamewon){
+				update();
+				render();
+				Level.endGame(true);
 
+				//write to topten.txt file
+				//Files.write(file.getPath(), "HI!");
+
+				gamewon=false;
+			}
+			if(gtfo){
+				windowrunning=false;
+				try{
+					bw.close();
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+				j.setVisible(false);
+				j.dispose();
+			}
 			try{
 				Thread.sleep(15);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 		}
-
-		saveHighScore();
-		startNewGame();
+		if(gtfo){
+			windowrunning=false;
+			j.setVisible(false);
+			j.dispose();
+		}
 	}
 
 
-	public void saveHighScore(){//if high score, stick in an array to be displayed by the menu
-
-	}
-
-	private void startNewGame() {//creates a new Level object
-
+	public static void resetGame(){	
+		level=new Level();
+		Grid.numRevealed = 0;
+		hitBomb=false;
+		ClickListener.useMouse=true;
+		running = true;
 	}
 
 }
