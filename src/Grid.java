@@ -6,6 +6,7 @@ public class Grid extends Rectangle{
 	public int[] id = {-1, -1};
 	public int rank = 0;
 	public boolean isBomb=false;
+	public static int numRevealed = 0;
 	private int status = 0; //represents visual state to user - blank (0), marked (1), ? (2), or revealed (3)
 
 	public Grid(Rectangle size, int[] id){
@@ -34,6 +35,10 @@ public class Grid extends Rectangle{
 
 	public boolean revealTile(){//sets the image of the tile based on rank and the isBomb boolean
 		ClickListener.falsifyML();
+		if(this.id==Tile.flag)
+			return false;
+		if(this.id!=Tile.blank)
+			return false;
 		if(this.isBomb)//checks for isBomb boolean
 			this.id=Tile.bomb;
 		else if(this.rank==1)
@@ -54,8 +59,12 @@ public class Grid extends Rectangle{
 			this.id=Tile.eight;
 		else{
 			this.id=Tile.zero;
+			numRevealed++;
+			System.out.println(this.rank);
 			return true;
 		}
+		numRevealed++;
+		System.out.println(this.rank);
 		return false;
 		//TODO:
 		//change the code so it directly edits the Grid object (i.e. this.id=Tile.bomb); I had issues getting this to work; 
