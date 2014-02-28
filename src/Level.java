@@ -3,15 +3,20 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
 
 public class Level {
 
+	public static String filename = "scores.txt";
 	static int range = 100;
+	//public int numRevealed=0;
 	public static int W = 10, H=10;
 	static int[][] bombs = new int[10][2]; //an array holding the coordinates of each bomb
-	private boolean[][] visited = new boolean[10][10];
+	private static boolean[][] visited = new boolean[10][10];
 	//^used for clearAdjTiles() and for permitting against right clicks after a tile has been revealed
 	public static Grid[][] grid = new Grid[W][H];
+	//private static Grid[] mines = new Grid[10];
 
 	public Level(){	
 		generateGrid();//initialize all tiles to be blank
@@ -89,7 +94,7 @@ public class Level {
 						ycoord = numGenerator.nextInt(10);
 						break;
 					}
-					duplicateBomb=false;//no ? fahgettabotit - http://www.youtube.com/watch?v=z-CL9qVG9iI
+					duplicateBomb=false;//no bomb? fahgettabotit - http://www.youtube.com/watch?v=z-CL9qVG9iI
 				}
 				if(!duplicateBomb || numBombs==0){//unique coordinates are stored in bombs[][]; loop is ended
 					bombs[numBombs][0]=xcoord;
@@ -123,15 +128,20 @@ public class Level {
 					}	
 				}
 				if(MouseLeft()){//left click
-					if(grid[x][y].id==Tile.blank || grid[x][y].id==Tile.qmark){//if the tile has not already been revealed
+					if((grid[x][y].id==Tile.blank || grid[x][y].id==Tile.qmark) && !visited[x][y]){//if the tile has not already been revealed
 						if(grid[x][y].contains(new Point(Game.point.x,Game.point.y))){//checks whether or not the mouse click is contained inside the rectangle
 							visited[x][y]=true;
 							if(grid[x][y].revealTile()){//if the tile is rank zero, reveal adjacent tiles
 								clearAdjTiles(x,y);
 							}
-							if(grid[x][y].id==Tile.bomb){//if a bomb is encountered, reveal all bombs and stop running the game
-								revealBombs();
-								Game.running=false;
+
+							System.out.println("numRevealed: " + Grid.numRevealed);
+							if(Grid.numRevealed==90){
+								Game.gamewon=true;
+							}
+							else if(grid[x][y].id==Tile.bomb){//if a bomb is encountered, reveal all bombs and stop running the game
+								Game.hitBomb=true;
+								
 							}
 						}
 
@@ -142,28 +152,42 @@ public class Level {
 		}
 	}
 
-	private void revealBombs() {//go through list of bombs coords and reveal tiles
+	public static void revealBombs(Grid[][] grid) {//go through list of bombs coords and reveal tiles
 		for(int i=0;i<10;i++){
-			this.grid[bombs[i][0]][bombs[i][1]].revealTile();
+			grid[bombs[i][0]][bombs[i][1]].revealTile();
 		}
+	}
+	
+	public static void endGame(boolean win){
+		ClickListener.useMouse=false;
+		Grid.numRevealed = 0;
+		if(win){
+			saveHighScore();
+		}
+		else
+			JOptionPane.showMessageDialog(null, "You Lose!\n Click 'Reset' to try again.\n ");
+	}
+	
+	public static void saveHighScore(){
+		String name = JOptionPane.showInputDialog ( "You win! Enter your name:\n" ); 
 	}
 
 	private void clearAdjTiles(int x, int y) {//recursively clears tiles around those of rank zero
 		if(x>0){//if(tileIsAwayFromLeftEdge)
 			if(grid[x-1][y].id!=Tile.flag)
-				if(grid[x-1][y].revealTile()  && !visited[x-1][y]){
+				if(!visited[x-1][y] && grid[x-1][y].revealTile()){
 					visited[x-1][y]=true;
 					clearAdjTiles(x-1,y);//left tile
 				}
 			if(y>0)
 				if(grid[x-1][y-1].id!=Tile.flag)
-					if(grid[x-1][y-1].revealTile() && !visited[x-1][y-1]){
+					if(!visited[x-1][y-1] && grid[x-1][y-1].revealTile()){
 						visited[x-1][y-1]=true;
 						clearAdjTiles(x-1,y-1);//upper left tile
 					}
 			if(y<9){
 				if(grid[x-1][y+1].id!=Tile.flag)
-					if(grid[x-1][y+1].revealTile() && !visited[x-1][y+1]){
+					if(!visited[x-1][y+1] && grid[x-1][y+1].revealTile() ){
 						visited[x-1][y+1]=true;
 						clearAdjTiles(x-1,y+1);//lower left tile
 					}
@@ -171,34 +195,34 @@ public class Level {
 		}
 		if(x<9){//if(tileIsAwayFromRightEdge)
 			if(grid[x+1][y].id!=Tile.flag)
-				if(grid[x+1][y].revealTile() && !visited[x+1][y]){
+				if(!visited[x+1][y] && grid[x+1][y].revealTile() ){
 					visited[x+1][y]=true;
 					clearAdjTiles(x+1,y);//right tile
 				}
 			if(y>0)
 				if(grid[x+1][y-1].id!=Tile.flag)
-					if(grid[x+1][y-1].revealTile() && !visited[x+1][y-1]){
+					if(!visited[x+1][y-1] && grid[x+1][y-1].revealTile()){
 						visited[x+1][y-1]=true;
 						clearAdjTiles(x+1,y-1);//upper right tile
 					}
 			if(y<9)
 				if(grid[x+1][y+1].id!=Tile.flag)
-					if(grid[x+1][y+1].revealTile() && !visited[x+1][y+1]){
+					if(!visited[x+1][y+1] && grid[x+1][y+1].revealTile()){
 						visited[x+1][y+1]=true;
 						clearAdjTiles(x+1,y+1);//lower right tile
 					}
 		}
 		if(y>0)//if(tileIsAwayFromUpperEdge)
 			if(grid[x][y-1].id!=Tile.flag)
-				if(grid[x][y-1].revealTile() && !visited[x][y-1]){
+				if(!visited[x][y-1] && grid[x][y-1].revealTile()){
 					visited[x][y-1]=true;
 					clearAdjTiles(x,y-1);//upper tile
 				}
 		if(y<9)//if(tileIsAwayFromLowerEdge)
 			if(grid[x][y+1].id!=Tile.flag)
-			if(grid[x][y+1].revealTile() && !visited[x][y+1]){
-				visited[x][y+1]=true;
-				clearAdjTiles(x,y+1);//lower tile
-			}
+				if(!visited[x][y+1] && grid[x][y+1].revealTile()){
+					visited[x][y+1]=true;
+					clearAdjTiles(x,y+1);//lower tile
+				}
 	}
 }
