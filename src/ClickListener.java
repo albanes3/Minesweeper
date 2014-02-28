@@ -3,8 +3,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class ClickListener implements MouseListener,MouseMotionListener{
-	public static  boolean mouseRight = false;
+	private static  boolean mouseRight = false;
 	private static  boolean mouseLeft = false;
+	public static boolean useMouse=true;
 
 	public static boolean MouseLeft(){
 		return mouseLeft;
@@ -33,38 +34,46 @@ public class ClickListener implements MouseListener,MouseMotionListener{
 
 
 	public void mousePressed(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1){
-			mouseLeft = true;
-		}
-		else if(e.getButton() == MouseEvent.BUTTON3){
-			mouseRight = true;
+		if(useMouse){
+			if(e.getButton() == MouseEvent.BUTTON1){
+				mouseLeft = true;
+			}
+			else if(e.getButton() == MouseEvent.BUTTON3){
+				mouseRight = true;
+			}
 		}
 	}
 
 
 	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1){
-			mouseLeft = false;
-		}
-		else if(e.getButton() == MouseEvent.BUTTON3){
-			mouseRight = false;
+		if(useMouse){
+			if(e.getButton() == MouseEvent.BUTTON1){
+				mouseLeft = false;
+			}
+			else if(e.getButton() == MouseEvent.BUTTON3){
+				mouseRight = false;
+			}
 		}
 	}
 
 
 	public void mouseDragged(MouseEvent e) {
-		Game.point.setLocation(e.getX(),e.getY());
+		if(useMouse){
+			Game.point.setLocation(e.getX(),e.getY());
+		}
 	}
 
 
 	public void mouseMoved(MouseEvent e) {
-		Game.point.setLocation(e.getX(),e.getY());
+		if(useMouse){
+			Game.point.setLocation(e.getX(),e.getY());
+		}
 	}
-	
+
 	public static void flipMR(){
 		mouseRight=!mouseRight;
 	}
-	
+
 	public static void falsifyML(){
 		mouseLeft=false;
 	}
