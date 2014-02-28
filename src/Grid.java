@@ -19,28 +19,34 @@ public class Grid extends Rectangle{
 	}
 
 	public void toggle(){ //changes the state of the tile between unmarked, marked, and ?
+		if (this.id != Tile.blank && this.id != Tile.flag && this.id != Tile.qmark)
+			return;
 		if(status == 2){
 			this.id=Tile.blank;
 			status = 0;
 			return;
 		}
-		else if(status == 1)
+		else if(status == 1){
 			this.id=Tile.qmark;
-		else 
+			Level.gameCounter++;
+		}
+		else {
+			Level.gameCounter--;
 			this.id=Tile.flag;
+		}
 		status++;
-		//TODO:
-		//	right click does not initiate this method correctly; check click() method inside of Level class
 	}
 
 	public boolean revealTile(){//sets the image of the tile based on rank and the isBomb boolean
 		ClickListener.falsifyML();
 		if(this.id==Tile.flag)
 			return false;
-		if(this.id!=Tile.blank)
+		if(this.id!=Tile.blank && this.id!=Tile.qmark)
 			return false;
-		if(this.isBomb)//checks for isBomb boolean
+		if(this.isBomb){//checks for isBomb boolean
 			this.id=Tile.bomb;
+			return false;
+		}
 		else if(this.rank==1)
 			this.id=Tile.one;
 		else if(this.rank==2)
@@ -60,15 +66,9 @@ public class Grid extends Rectangle{
 		else{
 			this.id=Tile.zero;
 			numRevealed++;
-			System.out.println(this.rank);
 			return true;
 		}
 		numRevealed++;
-		System.out.println(this.rank);
 		return false;
-		//TODO:
-		//change the code so it directly edits the Grid object (i.e. this.id=Tile.bomb); I had issues getting this to work; 
-		// - this will also require changes to the click() method in the Level class
-		//instead return a boolean based on whether it should check for tiles with no adjacent bombs
 	}
 }
