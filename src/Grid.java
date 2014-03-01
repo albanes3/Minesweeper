@@ -3,45 +3,44 @@ import java.awt.Graphics;
 
 public class Grid extends Rectangle{
 	private static final long serialVersionUID = 1L;
-	public int[] id = {-1, -1};
-	public int rank = 0;
-	public boolean isBomb=false;
-	public static int numRevealed = 0;
+	public int[] id = {-1, -1}; //What kind of tile is it?
+	public int rank = 0; //How many bombs are adjacent to this tile?
+	public boolean isBomb=false; //Is the revealed tile a bomb?
+	public static int numRevealed = 0; //Counts number of tiles revealed
 	private int status = 0; //represents visual state to user - blank (0), marked (1), ? (2), or revealed (3)
 
+	//Constructor
 	public Grid(Rectangle size, int[] id){
 		setBounds(size);
 		this.id=id;
 	}
 
-	public void render(Graphics g){
-		g.drawImage(Tile.image, x, y, x+width, y+height, id[0]*Tile.size,id[1]*Tile.size, (id[0]+1)*(Tile.size), (id[1]+1)*(Tile.size),null);
-	}
-
-	public void toggle(){ //changes the state of the tile between unmarked, marked, and ?
-		if (this.id != Tile.blank && this.id != Tile.flag && this.id != Tile.qmark)
+	//changes the state of the tile between unmarked, marked, and ?
+	public void toggle(){
+		if (this.id != Tile.blank && this.id != Tile.flag && this.id != Tile.qmark) //Is it an unchangeable tile?
 			return;
-		if(status == 2){
+		if(status == 2){ //If the tile has a ? on it
 			this.id=Tile.blank;
 			status = 0;
 			return;
 		}
-		else if(status == 1){
+		else if(status == 1){ //If the tile has a flag on it
 			this.id=Tile.qmark;
 			Level.gameCounter++;
 		}
-		else {
+		else { //If the tile is blank and unrevealed
 			Level.gameCounter--;
 			this.id=Tile.flag;
 		}
 		status++;
 	}
 
-	public boolean revealTile(){//sets the image of the tile based on rank and the isBomb boolean
+	//Sets the image of the tile based on rank and the isBomb boolean
+	public boolean revealTile(){
 		ClickListener.falsifyML();
 		if(this.id==Tile.flag)
 			return false;
-		if(this.id!=Tile.blank && this.id!=Tile.qmark)
+		if(this.id!=Tile.blank) //Don't reveal a revealed or marked tile
 			return false;
 		if(this.isBomb){//checks for isBomb boolean
 			this.id=Tile.bomb;
@@ -70,5 +69,10 @@ public class Grid extends Rectangle{
 		}
 		numRevealed++;
 		return false;
+	}
+
+	//Render the tile
+	public void render(Graphics g){
+		g.drawImage(Tile.image, x, y, x+width, y+height, id[0]*Tile.size,id[1]*Tile.size, (id[0]+1)*(Tile.size), (id[1]+1)*(Tile.size),null);
 	}
 }
