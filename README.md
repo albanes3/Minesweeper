@@ -10,6 +10,7 @@ Work Distribution:
 - Everything else was worked on together
 
 Instructions for Eclipse:
+- Create a new Java project
 - Place all .java files into your src folder
 - Create a res folder in the same directory as your src folder
 - Right click -> Build Path -> Use as source folder
