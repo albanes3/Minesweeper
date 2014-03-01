@@ -2,12 +2,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-
 import javax.swing.*;
 
 public class GameMenu extends JMenuBar implements ActionListener{
 	private static final long serialVersionUID = 1L;
-	JButton resetButt;
+	
+	JButton resetButt; //Reset Button
+	
 	public GameMenu(){
 		//JMenuBar menuBar = new JMenuBar(); //create the panel for the menu
 		JMenu gameMenu = new JMenu("Game"), helpMenu = new JMenu("Help"); //create the two menus
@@ -57,6 +58,7 @@ public class GameMenu extends JMenuBar implements ActionListener{
 		this.add(gameMenu);
 		this.add(helpMenu);
 		
+		//Place reset button in frame
 		resetButt = new JButton("Reset");
 		resetButt.setBounds(207,170,70,20);
 		resetButt.addActionListener(this);
@@ -64,31 +66,36 @@ public class GameMenu extends JMenuBar implements ActionListener{
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if("exit".equals(e.getActionCommand())){
-			Game.gtfo=true;
-		}
-		else if("help".equals(e.getActionCommand())){
-			//j.setVisible(true);
-			JOptionPane.showMessageDialog(null,"Rules:\n\n- Left click on a tile to reveal the square.\n- Numbers on tiles represent the number of adjacent bombs.\n- Right click on a tile to mark it as a bomb.\n- Right click again to mark it as a possible bomb.\n- Right click a third time to clear markings.\n- The game is over once you click on a bomb.\n- To win, reveal all tiles that are not bombs.\n- There is a counter at the bottom representing the number of bombs left.\n- In order to be on the high score list, you must have one of the top ten fastest times!\n\n");
-		}
-		else if("About".equals(e.getActionCommand())){
-			JOptionPane.showMessageDialog(null,"By: Mike Albanese; Trevor Evans\n\n                  CS342\n" );
-		}
-		else if("Reset".equals(e.getActionCommand())){
+		if("Reset".equals(e.getActionCommand())){ //Reset the game
 			Game.resetGame();
 		}
-		else if("Reset Scores".equals(e.getActionCommand())){
+		else if("Top Ten".equals(e.getActionCommand())){ //Pop up high scores dialog
+			JOptionPane.showMessageDialog(null, Level.topScores);
+		}
+		else if("exit".equals(e.getActionCommand())){ //Close Game Window and stop running
+			Game.gtfo=true;
+		}
+		else if("help".equals(e.getActionCommand())){ //Pop up help dialog
+			JOptionPane.showMessageDialog(null,"Rules:\n\n- Left click on a tile to reveal the square.\n- Numbers on tiles represent the number of adjacent bombs.\n- Right click on a tile to mark it as a bomb.\n- Right click again to mark it as a possible bomb.\n- Right click a third time to clear markings.\n- The game is over once you click on a bomb.\n- To win, reveal all tiles that are not bombs.\n- There is a counter at the bottom representing the number of bombs left.\n- In order to be on the high score list, you must have one of the top ten fastest times!\n\n");
+		}
+		else if("About".equals(e.getActionCommand())){ //Pop up About Dialog
+			JOptionPane.showMessageDialog(null,"By: Mike Albanese; Trevor Evans\n\n                  CS342\n" );
+		}
+		else if("Reset Scores".equals(e.getActionCommand())){ //Clear high scores, in case you're jealous of that one guy who did slightly better than you and want his name off the list.  How dare he!
 			Level.topScores = new String("           --Top Scores--\n\n");
 			for(int i = 0; i < 10; i++){
 				Level.scores[i] = 0;
 				Level.names[i] = null;
 			}
+			
+			//Delete the scores file
 			try{
 				Game.file.delete();
 			}catch(Exception io){
 				io.printStackTrace();
 			}
 			
+			//Make sure it was deleted and create a new, empty file
 			try{
 				if (!Game.file.exists()) {
 					Game.file.createNewFile();
@@ -96,9 +103,6 @@ public class GameMenu extends JMenuBar implements ActionListener{
 			}catch(IOException ioe){
 				ioe.printStackTrace();
 			}
-		}
-		else if("Top Ten".equals(e.getActionCommand())){
-			JOptionPane.showMessageDialog(null, Level.topScores);
 		}
 
 	}
