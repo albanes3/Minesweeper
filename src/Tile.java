@@ -1,7 +1,9 @@
 import java.awt.Image;
 
 public class Tile {
-	public static int[] blank = {0,0};//coordinate system to be used when referring to 'image'
+	//coordinate system to be used when referring to 'image'
+	//Each set corresponds to the location in the tile sprite
+	public static int[] blank = {0,0};
 	public static int[] flag = {1,0};
 	public static int[] zero = {3,0};
 	public static int[] one = {0,1};
