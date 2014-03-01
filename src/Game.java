@@ -4,23 +4,24 @@ import javax.swing.*;
 
 public class Game extends Canvas implements Runnable{
 	private static final long serialVersionUID = 1L;
-	
+
+	public static int width = 290; //frame width
+	public static int height = width-35; //frame height
 	public static Dimension size = new Dimension(width,height);
-	
+
 	private Image image;
-	
+
 	public static File file = new File("topten.txt");
 	private static FileWriter fw;
 	private static BufferedWriter bw;
-	
+
 	public static Level level; //Runs the 10x10 grid of tiles
 	public static JFrame j;
 	public static JTextArea bombCount, timeCount; //Fields to display elapsed time and bombs remaining
 	public static Point point = new Point(0,0); //Checks against tile location to determine clicks
-	
+
 	public static long startTime,currentTime,stopTime;
-	public static int width = 290; //frame width
-	public static int height = width-35; //frame height
+	
 	public static int gameStart=0;
 
 	public static boolean running = false; //stores whether the game is running or not
@@ -28,7 +29,7 @@ public class Game extends Canvas implements Runnable{
 	public static boolean gtfo=false; //tells the application to close the window and stop running
 	public static boolean hitBomb=false;
 	public static boolean gamewon=false;
-	
+
 	public static String[] toptens = new String[10]; //array storing top ten high scores
 
 	//Constructor
@@ -41,8 +42,8 @@ public class Game extends Canvas implements Runnable{
 		}catch(IOException e){
 			e.printStackTrace();
 		}
-		
-		
+
+
 		for(int i=0; i<toptens.length;i++)
 			toptens[i]=""; //initialize the top tens array
 
@@ -50,7 +51,7 @@ public class Game extends Canvas implements Runnable{
 		addMouseListener(new ClickListener());
 		addMouseMotionListener(new ClickListener());
 	}
-	
+
 	//main
 	public static void main(String args[]){
 		Game game = new Game();
@@ -76,7 +77,7 @@ public class Game extends Canvas implements Runnable{
 		j.setJMenuBar(gm);
 		j.setVisible(true);
 		j.setResizable(false);
-		
+
         // Determine the center of the screen
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         int w = j.getSize().width;
@@ -86,7 +87,7 @@ public class Game extends Canvas implements Runnable{
 
         // Move the window
 		j.setLocation(x,y);
-		
+
 		j.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game.start();
 	}
@@ -113,7 +114,7 @@ public class Game extends Canvas implements Runnable{
 		else{
 			timeCount.setText("Time: 0.0");
 		}
-		
+
 		//Render the frame
 		Graphics g = image.getGraphics();
 		level.render(g);
@@ -132,7 +133,7 @@ public class Game extends Canvas implements Runnable{
 		windowrunning = true;
 		running = true;
 		level = new Level();
-		
+
 		image = createVolatileImage(width,height);
 
 		//Run the application until the user tells it to close
@@ -141,10 +142,10 @@ public class Game extends Canvas implements Runnable{
 				startTime = System.currentTimeMillis();
 				gameStart++;
 			}
-			
+
 			if(running)
 				currentTime = System.currentTimeMillis();
-			
+
 			update();//go to update()
 			render();//renders the grid after checking conditions and changing tile images
 
@@ -156,7 +157,7 @@ public class Game extends Canvas implements Runnable{
 				Level.endGame(false);
 				hitBomb=false;
 			}
-			
+
 			//If you win, end the game
 			if(gamewon){
 				update();
@@ -165,14 +166,14 @@ public class Game extends Canvas implements Runnable{
 				Level.endGame(true);
 				gamewon=false;
 			}
-			
+
 			//Close the window
 			if(gtfo){
 				windowrunning=false;
 				j.setVisible(false);
 				j.dispose();
 			}
-			
+
 			//Wait a bit so as not to render more than necessary
 			try{
 				Thread.sleep(15);
@@ -180,7 +181,7 @@ public class Game extends Canvas implements Runnable{
 				e.printStackTrace();
 			}
 		}
-		
+
 		//Close the window when the application has been told to stop running
 		if(gtfo){
 			windowrunning=false;
@@ -214,7 +215,7 @@ public class Game extends Canvas implements Runnable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	//Mouse Event checkers
 	public static boolean MouseLeft(){//checks for left click
 		return ClickListener.MouseLeft();
