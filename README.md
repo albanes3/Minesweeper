@@ -19,3 +19,6 @@ Instructions for Eclipse:
 - Create RL.java inside of res folder
 - Place tile2.jpg inside the res folder
 - Run Game.java
+
+Design Document:
+https://docs.google.com/document/d/1XE_o_rQOOJirWMBWF1yC5zDOFP7nelx8a6I6Jwb9XJo/edit?usp=sharing
